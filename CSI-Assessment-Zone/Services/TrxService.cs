@@ -51,14 +51,14 @@ namespace CSI_Assessment_Zone.Services
             // Initialize the client using the pipeline
             _client = new TcpClientChannel(pipeline, ts, new FieldsMessagesIdentifier(new[] { 11 }))
             {
-                RemotePort =_config.GetValue<int>("ISO8583Settings:Port"),
+                RemotePort = _config.GetValue<int>("ISO8583Settings:Port"),
                 RemoteInterface = _config.GetValue<string>("ISO8583Settings:IP"), // Replace with your ISO8583 server IP
                 Name = "Brave"
             };
 
             _sequencer = new VolatileStanSequencer();  // Initialize or pass the sequencer as needed
         }
-        public  bool connect()
+        public bool connect()
         {
             ChannelRequestCtrl ctrl = _client.Connect();
             ctrl.WaitCompletion();
@@ -126,6 +126,11 @@ namespace CSI_Assessment_Zone.Services
             }
             sndCtrl.Request.WaitResponse();
             var Response = sndCtrl.Request.ReceivedMessage;
+            // Process the response (e.g., save session keys)
+            if (Response != null) // Response to 0800 is 0810
+            {
+                ProcessKeyExchangeResponse((IsoMessage)Response);
+            }
             return Response;
         }
         private string GenerateKeyExchangeData()
