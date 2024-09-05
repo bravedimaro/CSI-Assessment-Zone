@@ -11,17 +11,27 @@ namespace CSI_Assessment_Zone.Controllers
     public class ISO8583MessageController : ControllerBase
     {
         private readonly ISO8583Service _iSO8583Service;
-        private readonly TcpClientChannel _client;
-        public ISO8583MessageController(ISO8583Service iSO8583Service, TcpClientChannel tcpClientChannel )
+        private readonly TrxService _trxService;
+        private readonly IConfiguration _config;
+        public ISO8583MessageController(ISO8583Service iSO8583Service, TrxService trxService, IConfiguration configuration )
         {
             _iSO8583Service=iSO8583Service;
-            _client=tcpClientChannel;
+            _trxService=trxService;
+            _config = configuration;
         }
-        [HttpGet("SendEchoMessage")]
+        [HttpPost("SendEchoMessage")]
         public async Task<IActionResult> SendEchoMessage()
         {
-            var result = await _iSO8583Service.SendEchoMessage();
+            
+            var result = await _trxService.SendEchoMessage();
            
+            return Ok(result);
+        }
+        [HttpPost("key-exchange")]
+        public async Task<IActionResult> SendKeyExchangeMessage()
+        {
+            var result = await _trxService.SendKeyExchangeMessage();
+
             return Ok(result);
         }
     }
